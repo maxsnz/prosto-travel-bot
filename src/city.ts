@@ -5,30 +5,35 @@ type Response = {
     id: number;
     attributes: {
       name: string;
-      isComingSoon: boolean;
+      description: string;
     };
-  }[];
+  };
 };
 
-type City = { id: number; name: string };
+export type City = {
+  id: number;
+  name: string;
+  description: string;
+};
 
-let cities: City[] = [];
+let cities: { [id: number]: City } = {};
 
-export async function loadCities(): Promise<void> {
+export async function loadCity(cityId: number): Promise<void> {
   const retries = 3;
   const delayMs = 2000;
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      const res = await fetch("https://prstrvl.ru/api/cities");
+      const res = await fetch(`https://prstrvl.ru/api/cities/${cityId}`);
       if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
       const data = (await res.json()) as Response;
 
-      cities = data.data
-        .filter((item) => !item.attributes.isComingSoon)
-        .map((item) => ({
-          name: item.attributes.name,
-          id: item.id,
-        }));
+      const city = {
+        id: data.data.id,
+        name: data.data.attributes.name,
+        description: data.data.attributes.description,
+      };
+
+      cities[cityId] = city;
 
       return;
     } catch (err) {
@@ -38,14 +43,15 @@ export async function loadCities(): Promise<void> {
         await new Promise((resolve) => setTimeout(resolve, delayMs));
       } else {
         console.error(`Failed to load cities after ${retries} attempts.`);
+        throw err;
       }
     }
   }
 }
 
-export async function getCities(): Promise<City[]> {
-  if (!cities) {
-    await loadCities();
+export async function getCity(cityId: number): Promise<City> {
+  if (!cities[cityId]) {
+    await loadCity(cityId);
   }
-  return cities;
+  return cities[cityId];
 }
