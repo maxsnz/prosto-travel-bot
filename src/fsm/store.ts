@@ -60,7 +60,9 @@ export class RedisFsmStore implements FsmStore {
 let store: FsmStore;
 
 if (env.REDIS_URL) {
-  const redis = new Redis(env.REDIS_URL);
+  const redis = new Redis(env.REDIS_URL, {
+    maxRetriesPerRequest: null,
+  });
   store = new RedisFsmStore(redis);
 } else {
   store = new InMemoryFsmStore();

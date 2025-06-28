@@ -1,6 +1,6 @@
 import { Telegraf, Context } from "telegraf";
 import { FSM } from "./fsm";
-import { loadCities } from "./cities";
+import { cityService, cacheManager } from "./services";
 import { fsmStore } from "./fsm/store";
 import env from "./config/env";
 
@@ -13,30 +13,75 @@ bot.use((ctx, next) => {
 });
 
 bot.on("text", async (ctx) => {
-  if (!ctx.chat?.id) return;
+  try {
+    if (!ctx.chat?.id) return;
 
-  const state = await fsmStore.get(ctx.chat.id);
-  const step = state?.step || "start";
-  const handler = FSM[step];
-  if (handler.onText) await handler.onText(ctx.chat.id, ctx);
-  else if (handler.onEnter) await handler.onEnter(ctx.chat.id, ctx);
-});
+    if (ctx.message.text === "/start") {
+      await FSM.start.onEnter(ctx.chat.id, ctx);
+      return;
+    }
 
-bot.on("callback_query", async (ctx) => {
-  if (!ctx.chat?.id) return;
-
-  const state = await fsmStore.get(ctx.chat.id);
-  const step = state?.step || "start";
-  const handler = FSM[step];
-  if (handler.onAction && ctx.callbackQuery && "data" in ctx.callbackQuery) {
-    const action = ctx.callbackQuery.data;
-    await handler.onAction(ctx.chat.id, ctx, action);
+    const state = await fsmStore.get(ctx.chat.id);
+    const step = state?.step || "start";
+    const handler = FSM[step];
+    if (handler.onText) await handler.onText(ctx.chat.id, ctx);
+    else if (handler.onEnter) await handler.onEnter(ctx.chat.id, ctx);
+  } catch (error) {
+    console.error("Error handling text message:", error);
+    try {
+      await ctx.reply("Sorry, something went wrong. Please try again.");
+    } catch (replyError) {
+      console.error("Error sending error message:", replyError);
+    }
   }
 });
 
-loadCities();
-bot.launch();
-console.log("🚀 Bot started");
+bot.on("callback_query", async (ctx) => {
+  try {
+    if (!ctx.chat?.id) return;
 
-process.once("SIGINT", () => bot.stop("SIGINT"));
-process.once("SIGTERM", () => bot.stop("SIGTERM"));
+    const state = await fsmStore.get(ctx.chat.id);
+    const step = state?.step || "start";
+    const handler = FSM[step];
+    if (handler.onAction && ctx.callbackQuery && "data" in ctx.callbackQuery) {
+      const action = ctx.callbackQuery.data;
+      await handler.onAction(ctx.chat.id, ctx, action);
+    }
+  } catch (error) {
+    console.error("Error handling callback query:", error);
+    try {
+      await ctx.answerCbQuery("Something went wrong. Please try again.");
+    } catch (replyError) {
+      console.error("Error answering callback query:", replyError);
+    }
+  }
+});
+
+// Preload cities on startup
+cityService.preloadCities();
+
+try {
+  bot.launch();
+  console.log("🚀 Bot started");
+} catch (error) {
+  console.error("❌ Failed to start bot:", error);
+  process.exit(1);
+}
+
+// Graceful shutdown
+const shutdown = async (signal: string) => {
+  console.log(`\n🛑 Received ${signal}, shutting down gracefully...`);
+
+  try {
+    await bot.stop(signal);
+    await cacheManager.close();
+    console.log("✅ Graceful shutdown completed");
+    process.exit(0);
+  } catch (error) {
+    console.error("❌ Error during shutdown:", error);
+    process.exit(1);
+  }
+};
+
+process.once("SIGINT", () => shutdown("SIGINT"));
+process.once("SIGTERM", () => shutdown("SIGTERM"));
