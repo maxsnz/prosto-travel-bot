@@ -16,7 +16,7 @@ export const done: FSMAction = {
       const state = await fsmStore.get(chatId);
       if (state?.guideHash) {
         // TODO: link change id to hash
-        await ctx.reply(`🔗 ${env.STRAPI_HOST}/guides/${state.guideHash}`);
+        await ctx.reply(`🔗 ${env.STRAPI_HOST}/guide/${state.guideHash}`);
         await ctx.reply(
           "Ты можешь сохранить его, распечатать или открыть в любой момент. Приятного путешествия! 🌍"
         );
