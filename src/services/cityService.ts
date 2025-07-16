@@ -65,27 +65,9 @@ export class CityService {
   async preloadCities(): Promise<void> {
     try {
       await this.getAllCities();
-      console.log("✅ Cities preloaded successfully");
     } catch (error) {
-      console.error("❌ Failed to preload cities:", error);
+      console.error("Failed to preload cities:", error);
     }
-  }
-
-  // Method for clearing cities cache
-  async clearCache(): Promise<void> {
-    await cacheManager.delete("cityGuides:all");
-    // Clear individual cities cache
-    await cacheManager.clearByPattern("city:*");
-  }
-
-  // Get cache statistics
-  async getCacheStats(): Promise<any> {
-    return await cacheManager.getStats();
-  }
-
-  // Get cache info with type
-  async getCacheInfo(): Promise<any> {
-    return await cacheManager.getCacheInfo();
   }
 }
 

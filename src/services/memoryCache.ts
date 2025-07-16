@@ -104,19 +104,12 @@ export class MemoryCacheManager {
       }
     }
 
-    if (deletedCount > 0) {
-      console.log(
-        `Cleared ${deletedCount} cache entries matching pattern: ${pattern}`
-      );
-    }
-
     return deletedCount;
   }
 
   // Close method for compatibility with Redis
   async close(): Promise<void> {
     this.cache.clear();
-    console.log("Memory cache cleared");
   }
 
   private cleanup(): void {

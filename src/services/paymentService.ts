@@ -34,7 +34,7 @@ export class PaymentService {
       }
     );
 
-    console.log("response", response);
+    console.log("createPayment response", response);
 
     const payment: Payment = {
       id: response.data.id,
@@ -54,7 +54,7 @@ export class PaymentService {
       data: params,
     });
 
-    console.log("response", response);
+    console.log("updatePayment response", response);
 
     return response;
   }

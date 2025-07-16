@@ -84,8 +84,6 @@ export class ApiClient {
           headers["Authorization"] = `Bearer ${env.STRAPI_TOKEN}`;
         }
 
-        console.log("POST", url, JSON.stringify(data));
-
         const res = await fetch(url, {
           method: "POST",
           headers,

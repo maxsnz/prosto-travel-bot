@@ -1,4 +1,3 @@
-import { generateGuide } from "../../generateGuide";
 import { generateGuideQueue } from "../../queues/generationQueue";
 import { fsmStore } from "../store";
 import { FSM } from "..";
@@ -17,27 +16,20 @@ export const payment_success: FSMAction = {
 
     const state = await fsmStore.get(chatId);
     if (!state) {
-      console.error("State is not defined");
-      return;
+      throw new Error("State is not defined");
     }
     const city = await cityService.getCityById(state.cityId!);
     if (!city) {
       return FSM["wait_city"].onEnter(chatId, ctx);
     }
 
-    generateGuide({
-      chatId: chatId,
-      cityId: state.cityId!,
-      days: state.days!,
-    });
+    if (!state.guideId) {
+      throw new Error("guideId is not defined");
+    }
 
     await generateGuideQueue.add("generate-guide", {
-      guideId: "abc123",
-      userId: "tgUser42",
-      // city: "Vladimir",
-      // templateVersion: "v1",
+      guideId: state.guideId,
+      userId: chatId,
     });
-
-    await FSM["done"].onEnter(chatId, ctx);
   },
 };

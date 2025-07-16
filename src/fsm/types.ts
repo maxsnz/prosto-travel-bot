@@ -10,6 +10,7 @@ export type Step =
   | "payment_success"
   | "payment_error"
   | "payment_cancel"
+  | "generation_error"
   | "done";
 
 export interface FsmState {
@@ -18,6 +19,7 @@ export interface FsmState {
   days?: number;
   guideId?: number;
   paymentId?: number;
+  guideHash?: string;
   // [key: string]: any;
 }
 

@@ -28,11 +28,9 @@ export class CacheManager implements ICacheManager {
     if (env.REDIS_URL) {
       this.cache = redisCacheManager;
       this.cacheType = "redis";
-      console.log("🔴 Using Redis cache");
     } else {
       this.cache = memoryCacheManager;
       this.cacheType = "memory";
-      console.log("💾 Using in-memory cache");
     }
   }
 

@@ -82,6 +82,7 @@ export interface Guide {
   publicId?: string;
   htmlContent?: string;
   status: "draft" | "paid" | "generating" | "ready" | "failed" | "delivered";
+  days: number;
 }
 
 export interface GuideAttributes {
@@ -90,6 +91,7 @@ export interface GuideAttributes {
   publicId?: string;
   htmlContent?: string;
   status: "draft" | "paid" | "generating" | "ready" | "failed" | "delivered";
+  days: number;
 }
 
 export interface GuideData {
@@ -100,6 +102,7 @@ export interface GuideData {
 export interface CreateGuideParams {
   userId: number;
   cityId: number;
+  days: number;
 }
 
 export interface UpdateGuideParams {

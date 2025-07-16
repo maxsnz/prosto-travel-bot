@@ -73,10 +73,15 @@ export const payment_onboarding: FSMAction = {
         await FSM["wait_city"].onEnter(chatId, ctx);
         return;
       }
+      if (!state.days) {
+        await FSM["wait_days"].onEnter(chatId, ctx);
+        return;
+      }
 
       const guide = await guideService.createGuide({
         userId: user.id,
         cityId: state.cityId,
+        days: state.days,
       });
 
       await fsmStore.update(chatId, { guideId: guide.id });

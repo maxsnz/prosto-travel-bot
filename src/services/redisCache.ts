@@ -25,9 +25,7 @@ export class RedisCacheManager {
       console.error("Redis connection error:", error);
     });
 
-    this.redis.on("connect", () => {
-      console.log("✅ Redis connected successfully");
-    });
+    this.redis.on("connect", () => {});
   }
 
   private getKey(key: string): string {
@@ -92,7 +90,6 @@ export class RedisCacheManager {
 
       if (keys.length > 0) {
         await this.redis.del(...keys);
-        console.log(`Cleared ${keys.length} cache entries`);
       }
     } catch (error) {
       console.error("Redis clear error:", error);
@@ -149,9 +146,6 @@ export class RedisCacheManager {
 
       if (keys.length > 0) {
         await this.redis.del(...keys);
-        console.log(
-          `Cleared ${keys.length} cache entries matching pattern: ${pattern}`
-        );
       }
 
       return keys.length;
@@ -165,7 +159,6 @@ export class RedisCacheManager {
   async close(): Promise<void> {
     try {
       await this.redis.quit();
-      console.log("Redis connection closed");
     } catch (error) {
       console.error("Redis close error:", error);
     }

@@ -9,6 +9,7 @@ import { payment_error } from "./actions/payment_error";
 import { done } from "./actions/done";
 import { dummy_payment } from "./actions/dummy_payment";
 import { payment_cancel } from "./actions/payment_cancel";
+import { generation_error } from "./actions/generation_error";
 
 export const FSM: FSMConfig = {
   start,
@@ -21,4 +22,5 @@ export const FSM: FSMConfig = {
   payment_error,
   payment_cancel,
   done,
+  generation_error,
 };

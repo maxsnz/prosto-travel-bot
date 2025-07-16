@@ -20,12 +20,13 @@ export class GuideService {
   }
 
   async createGuide(params: CreateGuideParams): Promise<Guide> {
-    const { userId, cityId } = params;
+    const { userId, cityId, days } = params;
 
     const response = await apiClient.post<ApiResponse<GuideData>>("/guides", {
       data: {
         user: userId,
         city_guide: cityId,
+        days,
       },
     });
 
@@ -34,6 +35,7 @@ export class GuideService {
       userId: response.data.attributes.userId,
       cityId: response.data.attributes.cityId,
       status: response.data.attributes.status,
+      days: response.data.attributes.days,
     };
 
     return guide;
@@ -55,6 +57,7 @@ export class GuideService {
       userId: response.data.attributes.userId,
       cityId: response.data.attributes.cityId,
       status: response.data.attributes.status,
+      days: response.data.attributes.days,
     };
 
     return guide;
