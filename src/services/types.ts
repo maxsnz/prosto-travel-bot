@@ -118,8 +118,16 @@ export interface Payment {
 }
 
 export interface PaymentAttributes {
-  guideId: number;
-  userId: number;
+  guide: {
+    data: {
+      id: number;
+    };
+  };
+  user: {
+    data: {
+      id: number;
+    };
+  };
   status: "pending" | "paid" | "failed" | "cancelled";
 }
 

@@ -9,6 +9,7 @@ interface EnvironmentConfig {
   REDIS_URL: string;
   STRAPI_TOKEN: string;
   STRAPI_HOST: string;
+  YOOKASSA_PROVIDER_TOKEN: string;
 }
 
 function validateEnv(): EnvironmentConfig {
@@ -17,6 +18,7 @@ function validateEnv(): EnvironmentConfig {
     "OPENAI_API_KEY",
     "STRAPI_TOKEN",
     "STRAPI_HOST",
+    "YOOKASSA_PROVIDER_TOKEN",
   ];
 
   const missingVars = requiredVars.filter((varName) => !process.env[varName]);
@@ -34,6 +36,7 @@ function validateEnv(): EnvironmentConfig {
     REDIS_URL: process.env.REDIS_URL!,
     STRAPI_TOKEN: process.env.STRAPI_TOKEN!,
     STRAPI_HOST: process.env.STRAPI_HOST!,
+    YOOKASSA_PROVIDER_TOKEN: process.env.YOOKASSA_PROVIDER_TOKEN!,
   };
 }
 

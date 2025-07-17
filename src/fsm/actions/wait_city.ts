@@ -7,7 +7,7 @@ import { FSMAction } from "../types";
 export const wait_city: FSMAction = {
   onEnter: async (chatId, ctx) => {
     await fsmStore.update(chatId, { step: "wait_city" });
-    const cities = await cityService.getAllCities();
+    const cities = await cityService.getAllCities(true);
     const buttons = cities.map(({ id, name }) =>
       Markup.button.callback(name, `city_${id}`)
     );

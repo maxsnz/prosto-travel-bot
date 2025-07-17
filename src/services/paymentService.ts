@@ -22,10 +22,8 @@ export class PaymentService {
   async createPayment(params: CreatePaymentParams): Promise<Payment> {
     const { guideId, userId } = params;
 
-    console.log("createPayment params", params);
-
     const response = await apiClient.post<ApiResponse<PaymentData>>(
-      "/payments",
+      "/payments?populate=guide&populate=user",
       {
         data: {
           guide: guideId,
@@ -34,12 +32,10 @@ export class PaymentService {
       }
     );
 
-    console.log("createPayment response", response);
-
     const payment: Payment = {
       id: response.data.id,
-      guideId: response.data.attributes.guideId,
-      userId: response.data.attributes.userId,
+      guideId: response.data.attributes.guide.data.id,
+      userId: response.data.attributes.user.data.id,
       status: response.data.attributes.status,
     };
 
@@ -53,8 +49,6 @@ export class PaymentService {
     const response = await apiClient.put<Payment>(`/payments/${paymentId}`, {
       data: params,
     });
-
-    console.log("updatePayment response", response);
 
     return response;
   }

@@ -24,4 +24,15 @@ export const payment_cancel: FSMAction = {
       await FSM["payment_onboarding"].onEnter(chatId, ctx);
     }
   },
+
+  onPreCheckout: async (userId, ctx, preCheckoutQuery) => {
+    console.log(
+      "Pre-checkout query received in payment_cancel state for user:",
+      userId
+    );
+    await ctx.answerPreCheckoutQuery(
+      false,
+      "Previous payment was cancelled. Please start a new payment."
+    );
+  },
 };

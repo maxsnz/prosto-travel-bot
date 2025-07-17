@@ -27,6 +27,12 @@ export interface FSMAction {
   onEnter: (chatId: number, ctx: Context) => Promise<void>;
   onText?: (chatId: number, ctx: Context) => Promise<void>;
   onAction?: (chatId: number, ctx: Context, action: string) => Promise<void>;
+  onPayment?: (chatId: number, ctx: Context, payment: any) => Promise<void>;
+  onPreCheckout?: (
+    userId: number,
+    ctx: Context,
+    preCheckoutQuery: any
+  ) => Promise<void>;
 }
 
 export type FSMConfig = {

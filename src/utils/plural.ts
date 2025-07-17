@@ -26,3 +26,7 @@ export const plural = (
 
   return many;
 };
+
+export const pluralDay = (count: number) => {
+  return plural(count, "день", "дня", "дней");
+};

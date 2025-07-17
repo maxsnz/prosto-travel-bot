@@ -7,6 +7,7 @@ export { cityService } from "./cityService";
 export { userService } from "./userService";
 export { guideService } from "./guideService";
 export { paymentService } from "./paymentService";
+export { paymentTimeoutService } from "./paymentTimeoutService";
 
 // Export types
 export * from "./types";

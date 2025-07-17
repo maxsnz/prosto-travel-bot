@@ -27,4 +27,15 @@ export const payment_error: FSMAction = {
       await FSM["wait_city"].onEnter(chatId, ctx);
     }
   },
+
+  onPreCheckout: async (userId, ctx, preCheckoutQuery) => {
+    console.log(
+      "Pre-checkout query received in payment_error state for user:",
+      userId
+    );
+    await ctx.answerPreCheckoutQuery(
+      false,
+      "Payment session has expired. Please start a new payment."
+    );
+  },
 };

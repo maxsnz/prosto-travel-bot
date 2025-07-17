@@ -1,6 +1,7 @@
 import { Telegraf, Context } from "telegraf";
 import { FSM } from "./fsm";
-import { cityService, cacheManager } from "./services";
+import { cacheManager } from "./services";
+import { paymentTimeoutService } from "./services/paymentTimeoutService";
 import { fsmStore } from "./fsm/store";
 import env from "./config/env";
 
@@ -9,7 +10,11 @@ async function startBot() {
     const bot = new Telegraf<Context>(env.TELEGRAM_TOKEN!);
 
     bot.use((ctx, next) => {
-      if (ctx.chat?.type === "private") {
+      if (!ctx.chat) {
+        return next();
+      }
+
+      if (ctx.chat.type === "private") {
         return next();
       }
     });
@@ -63,8 +68,64 @@ async function startBot() {
       }
     });
 
-    // Preload cities on startup
-    cityService.preloadCities();
+    bot.on("message", async (ctx) => {
+      try {
+        if (!ctx.chat?.id) return;
+
+        const msg = ctx.message as any;
+        if (!msg || !msg.successful_payment) return;
+
+        const state = await fsmStore.get(ctx.chat.id);
+        const step = state?.step || "start";
+        const handler = FSM[step];
+
+        if (handler.onPayment) {
+          await handler.onPayment(ctx.chat.id, ctx, msg.successful_payment);
+        } else {
+          console.warn(`No payment handler for state: ${step}`);
+        }
+      } catch (error) {
+        console.error("Error handling payment message:", error);
+        try {
+          await ctx.reply(
+            "Sorry, something went wrong with payment processing. Please try again."
+          );
+        } catch (replyError) {
+          console.error("Error sending payment error message:", replyError);
+        }
+      }
+    });
+
+    bot.on("pre_checkout_query", async (ctx) => {
+      try {
+        const userId = ctx.preCheckoutQuery.from.id;
+        if (!userId) return;
+
+        const state = await fsmStore.get(userId);
+        const step = state?.step || "start";
+        const handler = FSM[step];
+
+        if (handler.onPreCheckout) {
+          await handler.onPreCheckout(userId, ctx, ctx.preCheckoutQuery);
+        } else {
+          console.warn(`No pre-checkout handler for state: ${step}`);
+          await ctx.answerPreCheckoutQuery(
+            false,
+            "Payment validation not available for current state."
+          );
+        }
+      } catch (error) {
+        console.error("Error handling pre-checkout query:", error);
+        try {
+          await ctx.answerPreCheckoutQuery(
+            false,
+            "An error occurred during payment validation."
+          );
+        } catch (replyError) {
+          console.error("Error answering pre-checkout query:", replyError);
+        }
+      }
+    });
 
     bot.launch();
     console.log("Bot started");
@@ -76,6 +137,7 @@ async function startBot() {
       try {
         await bot.stop(signal);
         await cacheManager.close();
+        paymentTimeoutService.clearAllTimeouts();
         console.log("Graceful shutdown completed");
         process.exit(0);
       } catch (error) {

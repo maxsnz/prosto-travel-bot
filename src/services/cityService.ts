@@ -14,7 +14,7 @@ export class CityService {
     return CityService.instance;
   }
 
-  async getAllCities(): Promise<City[]> {
+  async getAllCities(flushCache: boolean = false): Promise<City[]> {
     const cacheKey = "cityGuides:all";
     const cached = await cacheManager.get<City[]>(cacheKey);
 
@@ -23,7 +23,7 @@ export class CityService {
     }
 
     const response = await apiClient.request<ApiListResponse<CityData>>(
-      "/city-guides"
+      "/city-guides?populate=city"
     );
 
     const cities = response.data.map((item) => ({
